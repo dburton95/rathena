@@ -91,6 +91,8 @@ Body:
       breakguild: true
       channel: true
       langtype: true
+      #hunt: true
+      #huntlog: true
     Permissions:
       attendance: false
   - Id: 2

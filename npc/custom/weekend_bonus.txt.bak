@@ -1,0 +1,91 @@
+-	script	WeekendBonus	-1,{
+OnSat0000:
+	setbattleflag("base_exp_rate", 1000);
+	setbattleflag("job_exp_rate", 1000);
+	setbattleflag("item_rate_common", 800);
+	setbattleflag("item_rate_common_boss", 800);
+	setbattleflag("item_rate_common_mvp", 800);
+	setbattleflag("item_rate_heal", 800);
+	setbattleflag("item_rate_heal_boss", 800);
+	setbattleflag("item_rate_heal_mvp", 800);
+	setbattleflag("item_rate_use", 800);
+	setbattleflag("item_rate_use_boss", 800);
+	setbattleflag("item_rate_use_mvp", 800);
+	setbattleflag("item_rate_equip", 800);
+	setbattleflag("item_rate_equip_boss", 800);
+	setbattleflag("item_rate_equip_mvp", 800);
+	setbattleflag("item_rate_card", 800);
+	setbattleflag("item_rate_card_boss", 800);
+	setbattleflag("item_rate_card_mvp", 800);
+	
+	atcommand "@reloadbattleconf";
+	announce "Weekend bonus rates are now in effect. Enjoy 10x EXP and 8x Drop rates until Monday 12:00AM ES(D)T.", bc_all, 0x00FF00;
+	end;
+
+OnMon0000:
+	setbattleflag("base_exp_rate", 700);
+	setbattleflag("job_exp_rate", 700);
+	setbattleflag("item_rate_common", 500);
+	setbattleflag("item_rate_common_boss", 500);
+	setbattleflag("item_rate_common_mvp", 500);
+	setbattleflag("item_rate_heal", 500);
+	setbattleflag("item_rate_heal_boss", 500);
+	setbattleflag("item_rate_heal_mvp", 500);
+	setbattleflag("item_rate_use", 500);
+	setbattleflag("item_rate_use_boss", 500);
+	setbattleflag("item_rate_use_mvp", 500);
+	setbattleflag("item_rate_equip", 500);
+	setbattleflag("item_rate_equip_boss", 500);
+	setbattleflag("item_rate_equip_mvp", 500);
+	setbattleflag("item_rate_card", 500);
+	setbattleflag("item_rate_card_boss", 500);
+	setbattleflag("item_rate_card_mvp", 500);
+
+	atcommand "@reloadbattleconf";
+	announce "Weekend bonus rates have ended. Rates are now 7x EXP and 5x Drop.", bc_all, 0x00FF00;
+	end;
+
+OnInit:
+	if (gettime(4) == 6 || gettime(4) == 0){
+		setbattleflag("base_exp_rate", 1000);
+		setbattleflag("job_exp_rate", 1000);
+		setbattleflag("item_rate_common", 800);
+		setbattleflag("item_rate_common_boss", 800);
+		setbattleflag("item_rate_common_mvp", 800);
+		setbattleflag("item_rate_heal", 800);
+		setbattleflag("item_rate_heal_boss", 800);
+		setbattleflag("item_rate_heal_mvp", 800);
+		setbattleflag("item_rate_use", 800);
+		setbattleflag("item_rate_use_boss", 800);
+		setbattleflag("item_rate_use_mvp", 800);
+		setbattleflag("item_rate_equip", 800);
+		setbattleflag("item_rate_equip_boss", 800);
+		setbattleflag("item_rate_equip_mvp", 800);
+		setbattleflag("item_rate_card", 800);
+		setbattleflag("item_rate_card_boss", 800);
+		setbattleflag("item_rate_card_mvp", 800);
+	} else {
+		setbattleflag("base_exp_rate", 700);
+		setbattleflag("job_exp_rate", 700);
+		setbattleflag("item_rate_common", 500);
+		setbattleflag("item_rate_common_boss", 500);
+		setbattleflag("item_rate_common_mvp", 500);
+		setbattleflag("item_rate_heal", 500);
+		setbattleflag("item_rate_heal_boss", 500);
+		setbattleflag("item_rate_heal_mvp", 500);
+		setbattleflag("item_rate_use", 500);
+		setbattleflag("item_rate_use_boss", 500);
+		setbattleflag("item_rate_use_mvp", 500);
+		setbattleflag("item_rate_equip", 500);
+		setbattleflag("item_rate_equip_boss", 500);
+		setbattleflag("item_rate_equip_mvp", 500);
+		setbattleflag("item_rate_card", 500);
+		setbattleflag("item_rate_card_boss", 500);
+		setbattleflag("item_rate_card_mvp", 500);
+	}
+	atcommand "@reloadbattleconfig";
+	end;
+}
+	
+	
+	

@@ -1,0 +1,207 @@
+// HUNT CONTRACTOR NPC SCRIPT 
+
+prontera,150,150,1	script	Hunting Contractor	1,{
+
+num_kill_target = 10;
+
+// Turn in for reward
+if (hunt_active && hunt_claimable) {
+	mes "Hey nice job! I think it's time for your reward.";
+	if (checkweight(hunt_target_item, 1) == 0) {
+		mes "You are carrying too much weight! Clear some of your inventory and come back.";
+		close;
+		}
+	getitem hunt_target_item, 1;
+	goto L_Reset_Hunt;
+	}
+
+// Check hunt status
+if (hunt_active && !hunt_claimable) {
+	mes "You are currently hunting for ^FF0000" + getitemname(hunt_target_item) + "^000000";
+	mes "You can hunt any of the following normal monsters:";
+	for (.@i = 0; .@i < hunt_mob_count; .@i++) {
+		.@monster_name$ = getmonsterinfo(hunt_mob_ids[.@i], MOB_NAME);
+		mes " -> ^FF0000" + .@monster_name$ + "^000000 (ID: " + mob_ids[.@i] + ")";
+		}
+	next;
+	}
+
+// Start a new hunt
+mes "Would you like to begin a new hunt?";
+mes "[^FF0000WARNING: Choosing yes will reset current hunt progress!^000000]";
+if (select("Yes:No") ==2) {
+	mes "Alright then...";
+	close;
+	}
+mes "What is the **ID Number** of the item you wish to hunt?";
+mes "You can find this in the item database on https://weebsweb.com/wro";
+next;
+input .@target_item;
+
+if (hunt_active && hunt_target_item == .@target_item) {
+	mes "You are already hunting for ^FF0000" + getitemname(hunt_target_item) + "^000000";
+	close;
+	}
+
+hunt_target_item = .@target_item;
+
+if (getitemname(hunt_target_item == "null" || hunt_target_item <=0)) {
+	mes "That's not a valid Item ID.";
+	close;
+	}
+
+cleararray hunt_mob_ids[0], 0, 10;
+hunt_mob_count = 0;
+
+for (.@i = 0; .@i < 10; .@i++) {
+	.@mob_id = getitemdropmobid(hunt_target_item, .@i);
+
+	if (.@mob_id <= 0){
+		break;
+		}
+
+	if (getmonsterinfo(.@mob_id, MOB_BOSS)) {
+		continue;
+		}
+	hunt_mob_ids[hunt_mob_count] = .@mob_id;
+	hunt_mob_count = hunt_mob_count +1
+	}
+
+if (hunt_mob_count == 0) {
+	mes "This item doen't drop from normal monsters.";
+	close;
+	}
+
+mes "Got it. To get your ^0000FF" + getitemname(hunt_target_item) + "^000000";
+mes "you can hunt any of the following normal monsters:";
+next;
+
+for (.@i = 0; .@i < hunt_mob_count; .@i++) {
+	.@monster_name$ = getmonsterinfo(hunt_mob_ids[.@i], MOB_NAME);
+	mes " -> ^FF0000" + .@monster_name$ + "^000000 (ID: " + mob_ids[.@i] + ")";
+	}
+
+hunt_active = 1;
+hunt_kills = 0;
+hunt_claimable = 0;
+hunt_natural_drop = 0;
+close;
+
+L_Reset_Hunt:
+	hunt_active = 0;
+	hunt_target_item = 0;
+	hunt_kills = 0;
+	hunt_claimable = 0;
+	hunt_natural_drop = 0;
+	close;	
+
+}
+
+// KILL EVENT LOGIC
+
+-	script	Hunt_Engine	-1,{
+OnNPCKillEvent:
+	if (!hunt_active) end;
+
+// Check for valid kill and tally appropriately
+
+	.@valid_kill = 0;
+	for (.@i = 0; .@i < hunt_mob_count; .@i++) {
+		if (killedrid == hunt_mob_ids[.@i]) {
+			.@valid_kill = 1;
+			break;
+		}
+	}
+
+	if (.@valid_kill) {
+		if (countitem(hunt_target_item) > hunt_natural_drop) {
+			dispbottom "The item you were hunting dropped naturally! The hunt is ended.";
+			goto L_Reset_Hunt;
+		}
+
+		hunt_kills = hunt_kills +1;
+		dispbottom "Valid hunt monster killed.";
+
+		if (hunt_kills >= num_kill_target) {
+			hunt_claimable = 1;
+			dispbottom "You reached " + num_kill_target + "kills! Return to the Hunt Contractor to get your " + getitemname(hunt_target_item) +".";
+			end;
+		}
+	}
+	end;
+
+// Rebuild array of valid mobs to kill on login
+
+OnPCLoginEvent:
+	if (!hunt_active) end;
+
+	
+	cleararray hunt_mob_ids[0], 0, 10;
+	hunt_mob_count = 0;
+
+	for (.@i = 0; .@i < 10; .@i++) {
+		.@mob_id = getitemdropmobid(hunt_target_item, .@i);
+
+		if (.@mob_id <= 0){
+			break;
+			}
+
+		if (getmonsterinfo(.@mob_id, MOB_BOSS)) {
+			continue;
+			}
+		hunt_mob_ids[hunt_mob_count] = .@mob_id;
+		hunt_mob_count = hunt_mob_count +1
+		}
+	end;
+}
+
+
+// CUSTOM AT COMMAND
+
+-	script	Hunt_Commands	-1,{
+OnInit:
+	bindatcmd "hunt", "Hunt_Commands::OnHunt_Check";
+	bindatcmd "huntlog", "Hunt_Commands::OnHuntlog_Check";
+	end;
+
+OnHunt_Check:
+	if (!hunt_active) {
+		dispbottom "There is currently no hunt active."
+		dispbottom "You can start a new hunt at the Hunt Contractor."
+		end;
+	}
+
+	if (hunt_active && !hunt_claimable) {
+		dispbottom "Hunting item: " + getitemname(hunt_target_item)
+		dispbottom "Kills: " + hunt_kills + "/" + hunt_kill_target
+		kills_left = hunt_kill_target - hunt_kills
+		dispbottom "You have " + kills_left + "kills to go."
+		end;
+	}
+
+	if (hunt_active && hunt_claimable) {
+		dispbottom "You are ready to claim " + getitemname(hunt_target_item) + "!"
+		dispbottom "Return to the Hunt Contractor to receive your item."
+		end;
+	}
+
+OnHuntLog_Check:
+	if (!hunt_active) {
+		dispbottom "There is currently no hunt active."
+		dispbottom "You can start a new hunt at the Hunt Contractor."
+		end;
+	}
+
+	cl_nv2;
+	dispbottom "Opening Hunt Log...";
+
+	for (.@i = 0; .@i < hunt_mob_count; @i++) {
+		.@mob_id = hunt_mob_ids[.@i];
+		if (.@mob_id == 0) continue;
+		disp_nv2 1, .@mob_id, 0, 0, 0, getmonsterinfo(.@mob_id, MOBNAME);
+	}
+	
+	.@tracker_icon_id = 1002;
+	disp_nv2 1, .@tracker_icon_id, hunt_kills, hunt_kill_target, 0, "^FF0000[TOTAL HUNT PROGRESS]^000000";
+	end
+}
